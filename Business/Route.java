@@ -1,4 +1,4 @@
-package Entity;
+package Business;
 
 public class Route {
     private int id;

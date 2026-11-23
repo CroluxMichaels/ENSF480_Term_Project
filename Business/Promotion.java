@@ -1,4 +1,4 @@
-package Entity;
+package Business;
 
 public class Promotion {
     private int id;

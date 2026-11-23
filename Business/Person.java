@@ -1,4 +1,4 @@
-package Entity;
+package Business;
 
 public abstract class Person {
     private int id;
