@@ -27,12 +27,14 @@ public class Aircraft {
     }
 
     public void setSeats(ArrayList<Seat> seats) {
-        this.seats = seats;
+        this.seats = new ArrayList<>();
+        this.seats.addAll(seats);
     }
 
     public Aircraft(int id, String name, ArrayList<Seat> seats){
         this.id = id;
         this.name = name;
-        this.seats = seats;
+        this.seats = new ArrayList<>();
+        this.seats.addAll(seats);
     }
 }
