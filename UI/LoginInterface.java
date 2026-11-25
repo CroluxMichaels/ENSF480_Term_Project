@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Arrays;
+import Business.LoginController;
 
 public class LoginInterface implements ActionListener, MouseListener {
     private JFrame frame;
@@ -67,7 +68,9 @@ public class LoginInterface implements ActionListener, MouseListener {
     public void actionPerformed(ActionEvent e) {
         String username = userField.getText();
         char[] password = passwordField.getPassword();
+        LoginController loginController = new LoginController();
         statusLabel.setText("The Entered Username and Password combination is incorrect");
+        loginController.logIn(username, Arrays.toString(password));
         // Call login controller here
     }
 
