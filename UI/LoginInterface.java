@@ -19,7 +19,7 @@ public class LoginInterface implements ActionListener, MouseListener {
     private JLabel statusLabel;
 
     public void SetupLoginUI(){
-        JFrame frame = new JFrame("Login Window");
+        frame = new JFrame("Login Window");
         frame.setSize(500, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
