@@ -4,6 +4,7 @@ public class Booking {
     private int id;
     private Aircraft aircraft;
     private Route route;
+    private boolean paid;
 
     public int getId() {
         return id;
