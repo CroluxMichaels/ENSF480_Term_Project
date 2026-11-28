@@ -1,6 +1,14 @@
 package UI;
 
+import Business.Flight;
+import Business.FlightController;
 import Data.DatabaseConnection;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.*;
@@ -14,15 +22,19 @@ public class CustomerInterface implements ActionListener {
     private JFrame frame;
     private JButton logoutButton;
     private JLabel statusLabel;
+    private JButton searchButton;
+    private JButton bookingsButton;
+    private String username;
 
     public void setupCustomerUI(String username) {
         frame = new JFrame("Customer Menu");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.username = username;
 
         JLabel welcomeLabel = new JLabel("Welcome, " + username, SwingConstants.CENTER);
         welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(Font.BOLD, 30f));
-        JButton searchButton = new JButton("Search Flights");
-        JButton bookingsButton = new JButton("My Bookings");
+        searchButton = new JButton("Search Flights");
+        bookingsButton = new JButton("My Bookings");
         logoutButton = new JButton("Log Out");
         statusLabel = new JLabel(" ", SwingConstants.CENTER);
 
@@ -152,6 +164,74 @@ public class CustomerInterface implements ActionListener {
         dialog.setVisible(true);
     }
 
+    private void searchUI() {
+        JDialog searchDialog = new JDialog(frame, "Search Flights", false);
+        searchDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        // Create search interface components here
+        JLabel originLabel = new JLabel("Origin");
+        JTextField originText = new JTextField("Select departure airport...", 20);
+        JLabel destinationLabel = new JLabel("Destination");
+        JTextField destinationText = new JTextField("Select arrival airport...", 20);
+        JLabel dateLabel = new JLabel("Departure date");
+        JTextField dateText = new JTextField("YYYY-MM-DD", 20);
+        JLabel airlineLabel = new JLabel("Airline Code");
+        JTextField airlineText = new JTextField(20);
+        originText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                originText.setText("");
+            }
+        });
+        destinationText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                destinationText.setText("");
+            }
+        });
+        dateText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                dateText.setText("");
+            }
+        });
+        JButton searchButton = new JButton("Search");
+        searchButton.addActionListener(event -> {
+            String origin = originText.getText();
+            String destination = destinationText.getText();
+            LocalDate date = LocalDate.parse(dateText.getText());
+            FlightController flightController = new FlightController();
+            String airlineCode = null;
+            if (!airlineText.getText().isBlank()){
+                airlineCode = airlineText.getText();
+            }
+            try {
+                ArrayList<Flight> flights = flightController.searchFlights(origin, destination, date, airlineCode);
+                // Display Flights code
+            } catch (SQLException e) {
+                searchButton.setText("Database Error");
+            }
+        });
+        JPanel searchPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        searchPanel.add(originLabel);
+        searchPanel.add(originText);
+        searchPanel.add(destinationLabel);
+        searchPanel.add(destinationText);
+        searchPanel.add(dateLabel);
+        searchPanel.add(dateText);
+        searchPanel.add(airlineLabel);
+        searchPanel.add(airlineText);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(searchButton);
+        searchPanel.add(new JLabel());
+        searchPanel.add(buttonPanel);
+        searchDialog.add(searchPanel);
+        searchDialog.pack();
+        searchDialog.setLocationRelativeTo(frame);
+        searchDialog.setVisible(true);
+    }
+
     private JPanel centerButton(JButton button) {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         row.add(button);
@@ -164,7 +244,10 @@ public class CustomerInterface implements ActionListener {
             LoginInterface login = new LoginInterface();
             login.SetupLoginUI();
             frame.dispose();
-        } else {
+        } else if (event.getSource() == searchButton) {
+            this.searchUI();
+        }
+        else {
             statusLabel.setText(event.getActionCommand() + " selected.");
         }
     }
