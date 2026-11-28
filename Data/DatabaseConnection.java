@@ -1,3 +1,4 @@
+
 package Data;
 
 import java.sql.Connection;
@@ -70,6 +71,32 @@ public class DatabaseConnection {
         });
     }
 
+    public java.util.List<String> getCustomerBookings(String username) throws SQLException {
+        String sql = """
+                SELECT b.reservation_id, f.flight_designator, f.origin, f.destination,
+                       f.leaves_at, b.assigned_seat, b.booked_fare, b.cancelled_at
+                FROM booking b
+                JOIN person p ON p.account_id = b.customer_account_id
+                JOIN flight f ON f.scheduled_flight_id = b.scheduled_flight_id
+                WHERE p.login_name = ?
+                ORDER BY f.leaves_at DESC, b.reservation_id DESC
+                """;
+
+        return executeQuery(sql, rows -> {
+            java.util.List<String> bookings = new java.util.ArrayList<>();
+            while (rows.next()) {
+                String status = rows.getString("cancelled_at") == null ? "Booked" : "Cancelled";
+                bookings.add("Booking #" + rows.getInt("reservation_id") + "  |  " + status
+                        + "\nFlight " + rows.getString("flight_designator") + "   "
+                        + rows.getString("origin") + " → " + rows.getString("destination")
+                        + "\nDeparture (UTC): " + rows.getString("leaves_at")
+                        + "\nSeat: " + rows.getInt("assigned_seat")
+                        + "    Fare: CAD " + rows.getBigDecimal("booked_fare").toPlainString());
+            }
+            return bookings;
+        }, username);
+    }
+
     public int executeUpdate(
             String query,
             Object... parameters) throws SQLException {
@@ -88,3 +115,6 @@ public class DatabaseConnection {
         }
     }
 }
+
+
+

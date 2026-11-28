@@ -27,7 +27,7 @@ public class CustomerInterface implements ActionListener {
         statusLabel = new JLabel(" ", SwingConstants.CENTER);
 
         searchButton.addActionListener(this);
-        bookingsButton.addActionListener(this);
+        bookingsButton.addActionListener(event -> showBookings(username));
         logoutButton.addActionListener(this);
 
         JPanel panel = new JPanel(new GridLayout(5, 1, 0, 10));
@@ -103,6 +103,55 @@ public class CustomerInterface implements ActionListener {
         }.execute();
     }
 
+    private void showBookings(String username) {
+        JDialog dialog = new JDialog(frame, "My Bookings", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        JLabel heading = new JLabel("My Bookings");
+        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 24f));
+        JTextArea details = new JTextArea("Loading your bookings…", 16, 44);
+        details.setEditable(false);
+        details.setFont(statusLabel.getFont());
+        details.setLineWrap(true);
+        details.setWrapStyleWord(true);
+        details.setMargin(new Insets(12, 14, 12, 14));
+
+        JButton back = new JButton("Back to Customer Menu");
+        back.addActionListener(event -> dialog.dispose());
+        JPanel panel = new JPanel(new BorderLayout(0, 12));
+        panel.setBorder(BorderFactory.createEmptyBorder(18, 20, 12, 20));
+        panel.add(heading, BorderLayout.NORTH);
+        panel.add(new JScrollPane(details), BorderLayout.CENTER);
+        panel.add(centerButton(back), BorderLayout.SOUTH);
+        dialog.add(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(frame);
+
+        new SwingWorker<List<String>, Void>() {
+            @Override
+            protected List<String> doInBackground() throws java.sql.SQLException {
+                return DatabaseConnection.getInstance().getCustomerBookings(username);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<String> bookings = get();
+                    details.setText(bookings.isEmpty() ? "You have no bookings yet."
+                            : String.join("\n\n", bookings));
+                    details.setCaretPosition(0);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    details.setText("Loading bookings was interrupted.");
+                } catch (ExecutionException e) {
+                    details.setText("Unable to load your bookings. Close this window and try again.");
+                    e.getCause().printStackTrace();
+                }
+            }
+        }.execute();
+        dialog.setVisible(true);
+    }
+
     private JPanel centerButton(JButton button) {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         row.add(button);
@@ -120,3 +169,6 @@ public class CustomerInterface implements ActionListener {
         }
     }
 }
+
+
+
