@@ -84,7 +84,9 @@ public class LoginInterface implements ActionListener, MouseListener {
             }
             else if (role.equals("customer")) {
                 statusLabel.setText("Customer login successful!");
-                //CustomerInterface customerInterface = new CustomerInterface();
+                CustomerInterface customerInterface = new CustomerInterface();
+                customerInterface.setupCustomerUI(username);
+                frame.dispose();
             }
             else if (role.equals("agent")) {
                 statusLabel.setText("Agent login successful!");
