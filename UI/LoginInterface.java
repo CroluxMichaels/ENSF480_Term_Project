@@ -98,8 +98,8 @@ public class LoginInterface implements ActionListener, MouseListener {
             }
         } catch (SQLException exception) {
             statusLabel.setText("Unable to connect to the database.");
-
             exception.printStackTrace();
+
         } finally {
             Arrays.fill(passwordChars, '\0');
             passwordField.setText("");

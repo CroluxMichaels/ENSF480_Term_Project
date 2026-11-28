@@ -1,4 +1,3 @@
-
 package Data;
 
 import java.sql.Connection;
@@ -49,6 +48,26 @@ public class DatabaseConnection {
                 return mapper.map(rs);
             }
         }
+    }
+
+    public java.util.List<String> getActivePromotions() throws SQLException {
+        String sql = """
+                SELECT offer_code, percent_off, news_message, ends_on
+                FROM promotion
+                WHERE CURRENT_DATE BETWEEN starts_on AND ends_on
+                ORDER BY ends_on, offer_code
+                """;
+
+        return executeQuery(sql, rows -> {
+            java.util.List<String> offers = new java.util.ArrayList<>();
+            while (rows.next()) {
+                String discount = rows.getBigDecimal("percent_off").stripTrailingZeros().toPlainString();
+                offers.add(discount + "% off   |   " + rows.getString("offer_code")
+                        + "\n" + rows.getString("news_message")
+                        + "\nValid through " + rows.getDate("ends_on"));
+            }
+            return offers;
+        });
     }
 
     public int executeUpdate(
