@@ -10,7 +10,7 @@ public class DatabaseTest {
         // Format: jdbc:mysql://<host>:<port>/<database_name>
         String url = "jdbc:mysql://localhost:3306/airlinedata";
         String user = "root";
-        String password = "MySQL2024";
+        String password = "admin";
 
         String query = "SELECT account_id, given_name FROM person WHERE account_id > ?";
 

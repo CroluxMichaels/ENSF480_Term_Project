@@ -16,7 +16,7 @@ public class DatabaseConnection {
     private DatabaseConnection() {
         url = "jdbc:mysql://localhost:3306/airlinedata";
         user = "root";
-        password = "MySQL2024";
+        password = "admin";
     }
 
     // Thread-safe Singleton initialization
