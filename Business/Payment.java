@@ -72,6 +72,7 @@ public class Payment {
     }
 
     public int processPayment() throws SQLException{
+        initStatus();
         payID = PaymentController.savePayment(this);
         return payID;
     }
