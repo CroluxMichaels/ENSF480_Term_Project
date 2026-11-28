@@ -6,7 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+
+import Business.Customer;
 import Business.LoginController;
 
 public class LoginInterface implements ActionListener, MouseListener {
@@ -67,11 +71,37 @@ public class LoginInterface implements ActionListener, MouseListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         String username = userField.getText();
-        char[] password = passwordField.getPassword();
-        LoginController loginController = new LoginController();
-        statusLabel.setText("The Entered Username and Password combination is incorrect");
-        loginController.logIn(username, Arrays.toString(password));
-        // Call login controller here
+        char[] passwordChars = passwordField.getPassword();
+        statusLabel.setText("Authenticating...");
+
+        try {
+            LoginController loginController = new LoginController();
+            String password = new String(passwordChars);
+            String role = loginController.logIn(username, password);
+
+            if (role.equals("N/A")){
+                statusLabel.setText("Incorrect username or password, or inactive account.");
+            }
+            else if (role.equals("customer")) {
+                statusLabel.setText("Customer login successful!");
+                //CustomerInterface customerInterface = new CustomerInterface();
+            }
+            else if (role.equals("agent")) {
+                statusLabel.setText("Agent login successful!");
+                //AgentInterface agentInterface = new AgentInterface();
+            }
+            else if (role.equals("admin")) {
+                statusLabel.setText("Admin login successful!");
+                //AdminInterface adminInterface = new AdminInterface();
+            }
+        } catch (SQLException exception) {
+            statusLabel.setText("Unable to connect to the database.");
+
+            exception.printStackTrace();
+        } finally {
+            Arrays.fill(passwordChars, '\0');
+            passwordField.setText("");
+        }
     }
 
     @Override
