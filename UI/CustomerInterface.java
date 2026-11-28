@@ -4,6 +4,8 @@ import Data.DatabaseConnection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,15 +43,16 @@ public class CustomerInterface implements ActionListener {
         JPanel menu = new JPanel(new BorderLayout());
         menu.add(panel, BorderLayout.NORTH);
 
-        JTextArea promotions = new JTextArea("Loading promotions…", 6, 32);
+        JTextPane promotions = new JTextPane();
+        showPromotionText(promotions, "Loading promotions…");
         promotions.setEditable(false);
-        promotions.setLineWrap(true);
-        promotions.setWrapStyleWord(true);
         promotions.setFont(statusLabel.getFont());
         promotions.setMargin(new Insets(6, 10, 6, 10));
         JScrollPane offersBox = new JScrollPane(promotions);
-        promotions.setBackground(searchButton.getBackground());
-        offersBox.getViewport().setBackground(searchButton.getBackground());
+        offersBox.setPreferredSize(new Dimension(380, 120));
+        Color promotionBackground = new Color(220, 238, 252);
+        promotions.setBackground(promotionBackground);
+        offersBox.getViewport().setBackground(promotionBackground);
         offersBox.setBorder(BorderFactory.createLineBorder(UIManager.getColor("controlShadow")));
 
         JLabel heading = new JLabel("Current promotions");
@@ -67,7 +70,15 @@ public class CustomerInterface implements ActionListener {
         loadPromotions(promotions);
     }
 
-    private void loadPromotions(JTextArea promotions) {
+    private void showPromotionText(JTextPane promotions, String text) {
+        promotions.setText(text);
+        SimpleAttributeSet alignment = new SimpleAttributeSet();
+        StyleConstants.setAlignment(alignment, StyleConstants.ALIGN_CENTER);
+        promotions.getStyledDocument().setParagraphAttributes(0, text.length(), alignment, false);
+        promotions.setCaretPosition(0);
+    }
+
+    private void loadPromotions(JTextPane promotions) {
         new SwingWorker<List<String>, Void>() {
             @Override
             protected List<String> doInBackground() throws java.sql.SQLException {
@@ -78,15 +89,14 @@ public class CustomerInterface implements ActionListener {
             protected void done() {
                 try {
                     List<String> offers = get();
-                    promotions.setText(offers.isEmpty()
+                    showPromotionText(promotions, offers.isEmpty()
                             ? "No active promotions right now."
                             : String.join("\n\n", offers));
-                    promotions.setCaretPosition(0);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    promotions.setText("Loading promotions was interrupted.");
+                    showPromotionText(promotions, "Loading promotions was interrupted.");
                 } catch (ExecutionException e) {
-                    promotions.setText("Unable to load promotions.");
+                    showPromotionText(promotions, "Unable to load promotions.");
                     e.getCause().printStackTrace();
                 }
             }
